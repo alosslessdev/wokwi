@@ -1,197 +1,128 @@
 """
-Configuración del sistema Smart Home IoT
-Compatible con MicroPython en ESP32
+Archivo de configuración para el sistema Smart Home IoT
+Contiene todas las credenciales y parámetros del sistema
 """
 
-# ============================================================================
-# CONFIGURACIÓN MQTT
-# ============================================================================
+# ===== CONFIGURACIÓN MQTT (HiveMQ Cloud) =====
+MQTT_BROKER = "a696d90a2b6f41fe9008b1f1dcda2db5.s1.eu.hivemq.cloud"
 
-# Broker MQTT público (puedes cambiarlo por tu propio broker)
-MQTT_BROKER = "6231ad2c19cf4a8ebf1c527f4136a536.s1.eu.hivemq.cloud"  # Broker público gratuito
-MQTT_PORT = 8883
+# 🔥 CAMBIO 1: Puerto WebSockets con TLS
+MQTT_PORT = 8884  
 
-# Client ID único (se genera automáticamente si usas el código de abajo)
-# O puedes poner uno fijo como: MQTT_CLIENT_ID = "esp32_smarthome_001"
-try:
-    import ubinascii
-    import machine
-    # Genera un ID único basado en el MAC del ESP32
-    _uid = ubinascii.hexlify(machine.unique_id()).decode('utf-8')[-8:]
-    MQTT_CLIENT_ID = "esp32_{}".format(_uid)
-except:
-    # Fallback si falla la generación
-    MQTT_CLIENT_ID = "esp32_default"
+MQTT_USERNAME = "ivanwu"
+MQTT_PASSWORD = "HiveCloud507"
 
-# Credenciales MQTT (dejar None si el broker no requiere autenticación)
-MQTT_USERNAME = "asdfa"  # O tu usuario: "tu_usuario"
-MQTT_PASSWORD = "Asdfasdf1" # O tu contraseña: "tu_password"
+# 🔥 CAMBIO 2: Activar TLS + WebSockets
 MQTT_USE_TLS = True
+MQTT_USE_WEBSOCKETS = True     # <<< NUEVO
 
 # Topics MQTT
-MQTT_TOPIC_SENSORS = "smarthome/sensors"
-MQTT_TOPIC_COMMANDS = "smarthome/commands"
+MQTT_TOPICS = {
+    "temperature": "smarthome/sensors/temperature",
+    "humidity": "smarthome/sensors/humidity",
+    "light": "smarthome/sensors/light",
+    "fan_status": "smarthome/actuators/fan",
+    "light_status": "smarthome/actuators/light",
+    "fan_command": "smarthome/actuators/fan/command",
+    "light_command": "smarthome/actuators/light/command",
+    "alerts": "smarthome/alerts",
+    "system_status": "smarthome/system/status"
+}
 
-print("🔑 MQTT Client ID: {}".format(MQTT_CLIENT_ID))
-
-# ============================================================================
-# CONFIGURACIÓN THINGSPEAK
-# ============================================================================
-
+# ===== CONFIGURACIÓN THINGSPEAK =====
+THINGSPEAK_API_KEY = "9CXKR5T6UUQPPB7T"
+THINGSPEAK_CHANNEL_ID = "3193124"
 THINGSPEAK_URL = "https://api.thingspeak.com/update"
-THINGSPEAK_API_KEY = "YOUR_WRITE_API_KEY"  # Reemplaza con tu API Key real
+THINGSPEAK_READ_KEY = "W0MWXRXAIITR5EK5"
 
-# Para obtener tu API Key:
-# 1. Crea una cuenta en https://thingspeak.com
-# 2. Crea un nuevo Channel
-# 3. Ve a API Keys y copia el "Write API Key"
+# ===== CONFIGURACIÓN BASE DE DATOS =====
+DATABASE_PATH = "database/smart_home.db"
 
-# ============================================================================
-# UMBRALES Y REGLAS DE NEGOCIO
-# ============================================================================
+# ===== CONFIGURACIÓN DE PINES GPIO (Raspberry Pi / ESP32) =====
+GPIO_PINS = {
+    "dht22_data": 4,
+    "ldr_analog": 0,
+    "led_red": 17,
+    "led_green": 27,
+    "led_blue": 22,
+    "relay_fan": 23,
+    "buzzer": 24,
+    "oled_sda": 2,
+    "oled_scl": 3
+}
 
+# ===== UMBRALES Y LÍMITES DE SENSORES =====
 THRESHOLDS = {
-    # Temperatura
-    "temperature_high": 28.0,      # °C - Activa ventilador
-    "temperature_critical": 35.0,  # °C - Alerta crítica
-    "temperature_low": 20.0,       # °C - Alerta de frío
-    
-    # Humedad
-    "humidity_high": 70.0,         # % - Alerta de humedad alta
-    "humidity_low": 30.0,          # % - Alerta de humedad baja
-    
-    # Luz
-    "light_threshold": 300,        # lux - Enciende luz automática
+    "temperature_high": 28.0,
+    "temperature_low": 18.0,
+    "humidity_high": 70.0,
+    "humidity_low": 30.0,
+    "light_threshold": 300,
+    "temperature_critical": 35.0,
+    "humidity_critical": 80.0
 }
 
-# ============================================================================
-# CONFIGURACIÓN DE BASE DE DATOS
-# ============================================================================
-
-DATABASE_FILE = "smarthome.db"
-
-# ============================================================================
-# CONFIGURACIÓN DE SENSORES (para ESP32)
-# ============================================================================
-
-# Pines GPIO del ESP32
-PINS = {
-    "DHT_SENSOR": 15,      # Pin para DHT22 (temperatura y humedad)
-    "LDR_SENSOR": 34,      # Pin ADC para LDR (luz)
-    "FAN_RELAY": 26,       # Pin para relé del ventilador
-    "LIGHT_RELAY": 27,     # Pin para relé de la luz
-    "LED_STATUS": 2,       # LED integrado del ESP32
+# ===== INTERVALOS DE TIEMPO (segundos) =====
+TIMING = {
+    "sensor_read_interval": 5,
+    "mqtt_publish_interval": 10,
+    "thingspeak_interval": 20,
+    "database_save_interval": 30,
+    "display_update_interval": 2
 }
 
-# Tipo de sensor DHT (11 o 22)
-DHT_TYPE = 22  # DHT22 (más preciso) o DHT11
+# ===== CONFIGURACIÓN DEL SISTEMA =====
+SYSTEM_CONFIG = {
+    "auto_mode": True,
+    "alert_enabled": True,
+    "debug_mode": False,
+    "simulation_mode": True,
+    "timezone": "America/Panama"
+}
 
-# ============================================================================
-# INTERVALOS DE TIEMPO (en segundos)
-# ============================================================================
+# ===== CONFIGURACIÓN DE ALERTAS =====
+ALERTS = {
+    "email_enabled": False,
+    "buzzer_enabled": True,
+    "mqtt_alerts": True
+}
 
-SENSOR_READ_INTERVAL = 5       # Leer sensores cada 5 segundos
-MQTT_PUBLISH_INTERVAL = 10     # Publicar a MQTT cada 10 segundos
-DATABASE_SAVE_INTERVAL = 30    # Guardar en BD cada 30 segundos
-THINGSPEAK_INTERVAL = 20       # Enviar a ThingSpeak cada 20 segundos (mín 15s)
+# ===== MENSAJES DEL SISTEMA =====
+MESSAGES = {
+    "system_start": "Sistema Smart Home iniciado",
+    "system_stop": "Sistema Smart Home detenido",
+    "temp_high": "⚠️ Temperatura alta detectada",
+    "temp_critical": "🔥 ALERTA: Temperatura crítica",
+    "humidity_high": "💧 Humedad alta detectada",
+    "fan_auto_on": "Ventilador activado automáticamente",
+    "fan_auto_off": "Ventilador desactivado automáticamente",
+    "light_auto_on": "Luz activada automáticamente",
+    "light_auto_off": "Luz desactivada automáticamente"
+}
 
-# ============================================================================
-# CONFIGURACIÓN WIFI
-# ============================================================================
-
-# Para simuladores como Wokwi
-WIFI_SSID = "Wokwi-GUEST"
-WIFI_PASSWORD = ""
-
-# Para ESP32 real, cambia estos valores:
-# WIFI_SSID = "TuRedWiFi"
-# WIFI_PASSWORD = "TuPasswordWiFi"
-
-# ============================================================================
-# CONFIGURACIÓN DE DEBUG
-# ============================================================================
-
-DEBUG = True  # Mostrar mensajes detallados
-VERBOSE = False  # Mostrar mensajes muy detallados (solo para debugging)
-
-# ============================================================================
-# FUNCIONES AUXILIARES
-# ============================================================================
-
-def print_config():
-    """Imprime la configuración actual"""
-    print("\n" + "="*60)
-    print("⚙️  CONFIGURACIÓN DEL SISTEMA")
-    print("="*60)
-    print("\n📡 MQTT:")
-    print("   Broker: {}:{}".format(MQTT_BROKER, MQTT_PORT))
-    print("   Client ID: {}".format(MQTT_CLIENT_ID))
-    print("   Auth: {}".format("Sí" if MQTT_USERNAME else "No"))
-    
-    print("\n☁️  ThingSpeak:")
-    print("   Configurado: {}".format("Sí" if THINGSPEAK_API_KEY != "YOUR_WRITE_API_KEY" else "No"))
-    
-    print("\n🌡️  Umbrales:")
-    print("   Temp alta: {}°C".format(THRESHOLDS["temperature_high"]))
-    print("   Temp crítica: {}°C".format(THRESHOLDS["temperature_critical"]))
-    print("   Luz baja: {} lux".format(THRESHOLDS["light_threshold"]))
-    
-    print("\n⏱️  Intervalos:")
-    print("   Lectura sensores: {}s".format(SENSOR_READ_INTERVAL))
-    print("   Publicar MQTT: {}s".format(MQTT_PUBLISH_INTERVAL))
-    print("   Guardar BD: {}s".format(DATABASE_SAVE_INTERVAL))
-    print("   ThingSpeak: {}s".format(THINGSPEAK_INTERVAL))
-    
-    print("\n" + "="*60 + "\n")
-
-# ============================================================================
-# VALIDACIÓN DE CONFIGURACIÓN
-# ============================================================================
-
+# ===== VALIDACIÓN DE CONFIGURACIÓN =====
 def validate_config():
-    """Valida que la configuración sea correcta"""
+    """Valida que la configuración esté completa"""
     errors = []
-    warnings = []
     
-    # Validar MQTT
-    if not MQTT_BROKER:
-        errors.append("MQTT_BROKER no está definido")
-    if not MQTT_PORT or MQTT_PORT <= 0:
-        errors.append("MQTT_PORT inválido")
-    if not MQTT_CLIENT_ID:
-        errors.append("MQTT_CLIENT_ID no está definido")
+    if MQTT_BROKER == "your-cluster.hivemq.cloud":
+        errors.append("⚠️ Configurar MQTT_BROKER en config.py")
     
-    # Validar ThingSpeak
     if THINGSPEAK_API_KEY == "YOUR_WRITE_API_KEY":
-        warnings.append("ThingSpeak no configurado (usa la API Key por defecto)")
+        errors.append("⚠️ Configurar THINGSPEAK_API_KEY en config.py")
     
-    if THINGSPEAK_INTERVAL < 15:
-        errors.append("THINGSPEAK_INTERVAL debe ser >= 15 segundos")
-    
-    # Validar umbrales
-    if THRESHOLDS["temperature_high"] >= THRESHOLDS["temperature_critical"]:
-        errors.append("temperature_critical debe ser mayor que temperature_high")
-    
-    # Mostrar resultados
     if errors:
-        print("\n❌ ERRORES EN CONFIGURACIÓN:")
+        print("\n" + "="*50)
+        print("ERRORES DE CONFIGURACIÓN:")
         for error in errors:
-            print("   - {}".format(error))
+            print(f"  {error}")
+        print("="*50 + "\n")
+        return False
     
-    if warnings:
-        print("\n⚠️  ADVERTENCIAS:")
-        for warning in warnings:
-            print("   - {}".format(warning))
-    
-    if not errors and not warnings:
-        print("\n✅ Configuración válida")
-    
-    return len(errors) == 0
-
-# ============================================================================
-# AUTO-EJECUCIÓN
-# ============================================================================
+    return True
 
 if __name__ == "__main__":
-    print_config()
-    validate_config()
+    if validate_config():
+        print("✅ Configuración válida")
+    else:
+        print("❌ Revisar configuración")
