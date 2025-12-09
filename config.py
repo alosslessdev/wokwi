@@ -8,8 +8,8 @@ Compatible con MicroPython en ESP32
 # ============================================================================
 
 # Broker MQTT público (puedes cambiarlo por tu propio broker)
-MQTT_BROKER = "broker.hivemq.com"  # Broker público gratuito
-MQTT_PORT = 1883
+MQTT_BROKER = "6231ad2c19cf4a8ebf1c527f4136a536.s1.eu.hivemq.cloud"  # Broker público gratuito
+MQTT_PORT = 8883
 
 # Client ID único (se genera automáticamente si usas el código de abajo)
 # O puedes poner uno fijo como: MQTT_CLIENT_ID = "esp32_smarthome_001"
@@ -24,8 +24,9 @@ except:
     MQTT_CLIENT_ID = "esp32_default"
 
 # Credenciales MQTT (dejar None si el broker no requiere autenticación)
-MQTT_USERNAME = None  # O tu usuario: "tu_usuario"
-MQTT_PASSWORD = None  # O tu contraseña: "tu_password"
+MQTT_USERNAME = "asdfa"  # O tu usuario: "tu_usuario"
+MQTT_PASSWORD = "Asdfasdf1" # O tu contraseña: "tu_password"
+MQTT_USE_TLS = True
 
 # Topics MQTT
 MQTT_TOPIC_SENSORS = "smarthome/sensors"

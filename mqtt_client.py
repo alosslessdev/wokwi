@@ -97,15 +97,17 @@ class MQTTClient:
             if self.use_tls:
                 safe_print("   Configurando TLS...")
                 try:
-                    # Crear contexto SSL
-                    # CERT_NONE = No verifica el certificado del servidor
-                    # Necesario para algunos brokers cloud
-                    connect_params['ssl'] = ssl.CERT_NONE
-                    safe_print("   TLS configurado (modo CERT_NONE)")
+                    # Crear contexto SSL más compatible
+                    import ssl
+                    ssl_params = {
+                        'cert_reqs': ssl.CERT_NONE,
+                        'server_hostname': self.broker
+                    }
+                    connect_params['ssl'] = True
+                    connect_params['ssl_params'] = ssl_params
+                    safe_print("   TLS configurado")
                 except Exception as e:
                     safe_print("   ⚠️  Error configurando TLS: {}".format(str(e)))
-                    safe_print("   Intentando sin TLS...")
-                    self.use_tls = False
             
             # Crear cliente
             self.client = UMQTTClient(**connect_params)
